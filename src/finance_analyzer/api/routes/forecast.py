@@ -7,8 +7,7 @@ router = APIRouter(prefix="/forecast", tags=["forecast"])
 
 @router.get("/", response_model=ForecastResponse)
 
-async def forecast():
-    months_ahead: int = Query(default=3, ge=1, le=12)
+async def forecast(months_ahead: int = Query(default=3, ge=1, le=12)):
 
     df = get_processed_df()
     if df is None:
