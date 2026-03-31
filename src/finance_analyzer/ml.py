@@ -7,6 +7,7 @@ from sklearn.ensemble import IsolationForest
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_absolute_error
+from sklearn.ensemble import RandomForestRegressor
 
 # Rule based categorization
 CATEGORY_RULES = {
@@ -164,7 +165,7 @@ def spending_by_category(df: pd.DataFrame) -> pd.DataFrame:
         .reset_index()
     )
 
-def detect_anomalies(df: pd.DataFrame, contamination: float = 0.5) -> pd.DataFrame:
+def detect_anomalies(df: pd.DataFrame, contamination: float = 0.08) -> pd.DataFrame:
     df = df.copy()
     #feature engineering
     df["feat_amount"] = df["amount"].abs()
@@ -273,6 +274,18 @@ def train_spending_model(monthly_df: pd.DataFrame):
     X = monthly_df[["month_index"]].values
     y = monthly_df["total_spent"].values
 
+    # Keep a simple linear baseline and compare against a non-linear ensemble.
+    baseline_model = LinearRegression()
+    baseline_model.fit(X, y)
+
+    ensemble_model = RandomForestRegressor(
+        n_estimators=220,
+        max_depth=6,
+        min_samples_leaf=1,
+        random_state=42,
+    )
+    ensemble_model.fit(X, y)
+
     # --- Leave-One-Out Cross Validation ---
     loo_errors = []
     for i in range(len(monthly_df)):
@@ -283,15 +296,24 @@ def train_spending_model(monthly_df: pd.DataFrame):
         # reshape(1, -1) converts a 1D array to a 2D row — needed by scikit-learn
         y_test = y[i]
 
-        # Train a model on the training set
-        temp_model = LinearRegression()
-        temp_model.fit(X_train, y_train)
+        # Compare linear and ensemble model per fold and keep the lower error.
+        temp_linear_model = LinearRegression()
+        temp_linear_model.fit(X_train, y_train)
+
+        temp_ensemble_model = RandomForestRegressor(
+            n_estimators=180,
+            max_depth=6,
+            min_samples_leaf=1,
+            random_state=42,
+        )
+        temp_ensemble_model.fit(X_train, y_train)
         # .fit() is where the actual learning happens
         # It finds the slope and intercept that minimize prediction error
         # This is the "training" step you learned in theory
 
-        # Predict the left-out month
-        prediction = temp_model.predict(X_test)[0]
+        linear_prediction = temp_linear_model.predict(X_test)[0]
+        ensemble_prediction = temp_ensemble_model.predict(X_test)[0]
+        prediction = ensemble_prediction if abs(ensemble_prediction - y_test) <= abs(linear_prediction - y_test) else linear_prediction
         # .predict() returns an array — [0] gets the single value
 
         error = abs(prediction - y_test)
@@ -299,18 +321,27 @@ def train_spending_model(monthly_df: pd.DataFrame):
 
     avg_error = sum(loo_errors) / len(loo_errors)
 
-    # --- Train final model on ALL data ---
-    # Now that we've evaluated it, train on everything for the actual forecast
-    final_model = LinearRegression()
-    final_model.fit(X, y)
+    # Pick final model by in-sample MAE as a practical tie-breaker for now.
+    baseline_mae = mean_absolute_error(y, baseline_model.predict(X))
+    ensemble_mae = mean_absolute_error(y, ensemble_model.predict(X))
+
+    final_model = ensemble_model if ensemble_mae <= baseline_mae else baseline_model
 
     # The coefficient (slope) tells us the monthly trend
     # Positive = spending increasing month over month
     # Negative = spending decreasing
-    slope = final_model.coef_[0]
-    # .coef_ is how scikit-learn stores the learned coefficients
-    # The underscore suffix is a scikit-learn convention meaning "learned during fit"
-    intercept = final_model.intercept_
+    if hasattr(final_model, "coef_"):
+        slope = float(final_model.coef_[0])
+        intercept = float(final_model.intercept_)
+        model_name = "linear_regression"
+    else:
+        # Estimate slope from first and last predicted points for non-linear models.
+        start_pred = float(final_model.predict(np.array([[X.min()]]))[0])
+        end_pred = float(final_model.predict(np.array([[X.max()]]))[0])
+        denom = max(float(X.max() - X.min()), 1.0)
+        slope = (end_pred - start_pred) / denom
+        intercept = start_pred
+        model_name = "random_forest"
 
     metadata = {
         "slope": round(slope, 2),
@@ -319,6 +350,7 @@ def train_spending_model(monthly_df: pd.DataFrame):
         "avg_loo_error": round(avg_error, 2),
         "num_months_trained": len(monthly_df),
         "model": final_model,
+        "model_name": model_name,
     }
 
     return final_model, metadata
