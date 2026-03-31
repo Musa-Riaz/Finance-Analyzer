@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query
+from finance_analyzer.api.db_native import load_processed_dataframe
 from finance_analyzer.api.routes.upload import get_processed_df
 from finance_analyzer.ml import prepare_monthly_features, train_spending_model, forecast_next_months
 from finance_analyzer.api.interfaces.models import ForecastResponse, ForecastPoint
@@ -9,7 +10,9 @@ router = APIRouter(prefix="/forecast", tags=["forecast"])
 
 async def forecast(months_ahead: int = Query(default=3, ge=1, le=12)):
 
-    df = get_processed_df()
+    df = load_processed_dataframe()
+    if df is None:
+        df = get_processed_df()
     if df is None:
         raise HTTPException(
             status_code = 400,

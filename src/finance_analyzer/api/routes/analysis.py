@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from finance_analyzer.api.db_native import load_processed_dataframe
 from finance_analyzer.api.routes.upload import get_processed_df
 from finance_analyzer.analyzer import get_summary, spending_by_type
 from finance_analyzer.ml import spending_by_category, get_anomaly_report
@@ -15,7 +16,9 @@ router = APIRouter(prefix="/analysis", tags={"analysis"})
 def _check_data():
     # Helper to check if data has been uploaded yet
     # Reusable across all endpoints in this file
-    df = get_processed_df()
+    df = load_processed_dataframe()
+    if df is None:
+        df = get_processed_df()
     if df is None:
         raise HTTPException(
             status_code=400,

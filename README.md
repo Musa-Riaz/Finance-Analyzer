@@ -24,7 +24,8 @@ It combines:
 10. [Frontend Commands](#frontend-commands)
 11. [Known Limitations](#known-limitations)
 12. [Troubleshooting](#troubleshooting)
-13. [Suggested Next Improvements](#suggested-next-improvements)
+13. [Deployment and Rollback](#deployment-and-rollback)
+14. [Suggested Next Improvements](#suggested-next-improvements)
 
 ---
 
@@ -314,6 +315,8 @@ Run these inside `frontend/`:
 - `npm run build` - production build
 - `npm run preview` - preview production build
 - `npm run test` - run tests (Vitest)
+- `npm run test:e2e:install` - install Playwright Chromium browser
+- `npm run test:e2e` - run Playwright E2E smoke tests
 - `npm run lint` - run ESLint
 - `npm run check` - format + fix lint issues
 
@@ -358,6 +361,13 @@ VITE_API_BASE_URL=http://localhost:8002
 
 - Confirm CSV column names and timestamp format match expected schema.
 - Confirm files are actually `.csv`.
+
+---
+
+## Deployment and Rollback
+
+- Use the operational runbook in [DEPLOYMENT_ROLLBACK_PLAYBOOK.md](DEPLOYMENT_ROLLBACK_PLAYBOOK.md) for release, validation, and rollback steps.
+- The runbook includes pre-deploy checks, post-deploy smoke tests, rollback triggers, and incident documentation guidance.
 
 ---
 
