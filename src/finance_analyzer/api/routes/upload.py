@@ -5,14 +5,14 @@ from pathlib import Path
 import pandas as pd
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
-from finance_analyzer.api.db_native import persist_processed_dataframe
-from finance_analyzer.loader import load_data
-from finance_analyzer.cleaner import clean_transactions, add_month_column
-from finance_analyzer.ml import (
+from ..db_native import persist_processed_dataframe
+from ...loader import load_data
+from ...cleaner import clean_transactions, add_month_column
+from ...ml import (
     cluster_transactions,
     detect_anomalies,
 )
-from finance_analyzer.api.interfaces.models import UploadResponse
+from ..interfaces.models import UploadResponse
 
 router = APIRouter(prefix="/upload", tags=["upload"])
 

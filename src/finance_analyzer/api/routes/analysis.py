@@ -1,15 +1,15 @@
 from fastapi import APIRouter, HTTPException
-from finance_analyzer.api.db_native import load_processed_dataframe
-from finance_analyzer.api.routes.upload import get_processed_df
-from finance_analyzer.analyzer import get_summary, spending_by_type
-from finance_analyzer.ml import spending_by_category, get_anomaly_report
-from finance_analyzer.api.interfaces.models import (
+from ..db_native import load_processed_dataframe
+from .upload import get_processed_df
+from ...analyzer import get_summary, spending_by_type
+from ...ml import spending_by_category, get_anomaly_report
+from ..interfaces.models import (
     Summary,
     CategoryBreakdown,
     Transaction,
     MonthlySummary,
 )
-from finance_analyzer.ml import prepare_monthly_features
+from ...ml import prepare_monthly_features
 
 router = APIRouter(prefix="/analysis", tags={"analysis"})
 
@@ -37,7 +37,7 @@ async def summary():
 
 async def monthly():
     df = _check_data()
-    from finance_analyzer.analyzer import monthly_summary
+    from ...analyzer import monthly_summary
     result = monthly_summary(df)
     return [MonthlySummary(**row) for row in result.to_dict("records")]
 

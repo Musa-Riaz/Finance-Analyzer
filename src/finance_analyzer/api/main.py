@@ -6,7 +6,7 @@ from uuid import uuid4
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from finance_analyzer.api.routes import upload, analysis, forecast
+from .routes import upload, analysis, forecast
 
 logger = logging.getLogger("finance_analyzer.api")
 

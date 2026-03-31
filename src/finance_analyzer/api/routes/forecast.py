@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Query
-from finance_analyzer.api.db_native import load_processed_dataframe
-from finance_analyzer.api.routes.upload import get_processed_df
-from finance_analyzer.ml import prepare_monthly_features, train_spending_model, forecast_next_months
-from finance_analyzer.api.interfaces.models import ForecastResponse, ForecastPoint
+from ..db_native import load_processed_dataframe
+from .upload import get_processed_df
+from ...ml import prepare_monthly_features, train_spending_model, forecast_next_months
+from ..interfaces.models import ForecastResponse, ForecastPoint
 
 router = APIRouter(prefix="/forecast", tags=["forecast"])
 
