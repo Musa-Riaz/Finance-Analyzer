@@ -82,6 +82,20 @@ uv lock
 
 If your Python function still exceeds Vercel limits, deploy Python backend on DigitalOcean and keep frontend on Vercel.
 
+If you see this Vercel error:
+
+`Function Runtimes must have a valid version, for example now-php@1.0.0`
+
+use the builder syntax in `vercel.json` instead of a `functions.runtime` entry:
+
+```json
+{
+  "version": 2,
+  "builds": [{ "src": "api/index.py", "use": "@vercel/python" }],
+  "routes": [{ "src": "/(.*)", "dest": "api/index.py" }]
+}
+```
+
 After deploy, your Python docs should be at:
 
 - `https://<backend-project>.vercel.app/docs`
