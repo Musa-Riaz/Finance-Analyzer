@@ -19,6 +19,7 @@
         "/^Set-Location \"c:\\\\Users\\\\Home PC\\\\OneDrive\\\\Desktop\\\\finance-analyzer\"; python -m compileall src; uv run pytest$/": {
             "approve": true,
             "matchCommandLine": true
-        }
+        },
+        "ConvertFrom-Json": true
     }
 }
