@@ -70,6 +70,18 @@ Environment Variables for backend project:
 
 - `FRONTEND_ORIGINS=https://your-frontend-domain`
 
+Important for Vercel Python bundle limits:
+
+1. Vercel uses `uv.lock` when present. Keep runtime dependencies in `pyproject.toml` minimal.
+2. Notebook and plotting dependencies (`jupyter`, `matplotlib`, `seaborn`, test-only packages) should not be in runtime dependencies for serverless deploys.
+3. After dependency edits, regenerate lockfile:
+
+```bash
+uv lock
+```
+
+If your Python function still exceeds Vercel limits, deploy Python backend on DigitalOcean and keep frontend on Vercel.
+
 After deploy, your Python docs should be at:
 
 - `https://<backend-project>.vercel.app/docs`
