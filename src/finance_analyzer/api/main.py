@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 from collections import Counter
 from uuid import uuid4
@@ -23,9 +24,12 @@ app = FastAPI(
     version="1.0.0",
 )
 
+cors_origins_raw = os.getenv("FRONTEND_ORIGINS", "http://localhost:3000")
+cors_origins = [origin.strip() for origin in cors_origins_raw.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],   # allow all HTTP methods
     allow_headers=["*"],   # allow all headers

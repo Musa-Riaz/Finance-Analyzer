@@ -20,6 +20,14 @@
             "approve": true,
             "matchCommandLine": true
         },
-        "ConvertFrom-Json": true
+        "ConvertFrom-Json": true,
+        "/^Set-Location \"c:\\\\Users\\\\Home PC\\\\OneDrive\\\\Desktop\\\\finance-analyzer\\\\frontend\"; node dist/server/server\\.js$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^Set-Location \"c:\\\\Users\\\\Home PC\\\\OneDrive\\\\Desktop\\\\finance-analyzer\\\\frontend\"; node dist/server/server\\.js; Write-Output \"EXIT:\\$LASTEXITCODE\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
     }
 }
